@@ -14,6 +14,8 @@ import sys
 import re
 import argparse
 
+__author__ = "SmileySlays"
+
 """
 Define the extract_names() function below and change main()
 to call it.
@@ -46,13 +48,31 @@ def extract_names(filename):
     ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
     """
     names = []
-    # +++your code here+++
-    return names
+    baby_dict = {}
+    unsorted_names = []
+
+    with open(filename, 'r') as f:
+        matches = re.findall('<td>(.*?)</td>', f.read(), re.DOTALL)
+
+    matches[0] = matches[0][-1]
+
+    for num in range(3, 3003, 3):
+        baby_dict[matches[num-3]] = [matches[num-2], matches[num-1]]
+
+    for key in baby_dict.keys():
+        unsorted_names.append(baby_dict[key][0] + " " + key)
+        unsorted_names.append(baby_dict[key][1] + " " + key)
+
+    names = names + sorted(unsorted_names)
+    names.insert(0, filename[4:-5])
+
+    return '\n'.join(names) + '\n'
 
 
 def create_parser():
     """Create a cmd line parser object with 2 argument definitions"""
-    parser = argparse.ArgumentParser(description="Extracts and alphabetizes baby names from html.")
+    parser = argparse.ArgumentParser(
+        description="Extracts and alphabetizes baby names from html.")
     parser.add_argument(
         '--summaryfile', help='creates a summary file', action='store_true')
     # The nargs option instructs the parser to expect 1 or more filenames.
@@ -80,8 +100,14 @@ def main(args):
     # Format the resulting list a vertical list (separated by newline \n)
     # Use the create_summary flag to decide whether to print the list,
     # or to write the list to a summary file e.g. `baby1990.html.summary`
+    if create_summary:
+        for files in file_list:
+            with open(files + ".summary", "w+") as f:
+                f.write(extract_names(files))
 
-    # +++your code here+++
+    else:
+        for files in file_list:
+            print(extract_names(files))
 
 
 if __name__ == '__main__':
